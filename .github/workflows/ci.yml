@@ -1,0 +1,74 @@
+# =============================================================================
+# Proyecto Final
+# Materia: Ciencia de datos: de la academia a la industria
+# Autor: Andrea González
+# ============================================================================= 
+
+# ============================================================================== 
+# INTEGRACIÓN CONTINUA (CI) - GITHUB ACTIONS (Sesión 04 y 05) 
+# Automatización de pruebas de calidad y reproducibilidad 
+# ============================================================================== 
+
+# Este archivo .github/workflows/ci.yml define un flujo de Integración Continua (CI) con GitHub Actions,
+# su objetivo es actuar como un auditor automático, cada vez que se envía codigo a github, levanta un servidor
+# limpio a la nube, instala el paquete desde cero, corre las pruebas y con esto certifica que el proyecto esté bien
+# Por eso se le asigna el nombre CI
+name: CI
+
+# Lo siguiente es un disparador de eventos, cada vez que se ejecuta git push desde la terminal y se suben cambios 
+# a la rama principal (main), el flujo se ejecuta automáticamente (push: branches: [ main ])
+# Si en el futuro se trabaja en una rama separada (por ejemplo, para agregar una nueva cohorte) y se abre un 
+# Pull Request para fusionarla con main, GitHub Actions correrá las pruebas sobre la propuesta antes de permitir 
+# la integración (pull_request: branches: [ main ])
+# Eventos que activan el flujo: 
+# 1. Cada push a la rama principal (main) 
+# 2. Cada pull request hacia main 
+on: 
+  push: 
+    branches: [ main ] 
+  pull_request: 
+    branches: [ main ]
+
+# jobs es la lista de tareas principales que se van a ejecutar. Aquí se define un único trabajo llamado test
+# Con runs-on: ubuntu-latest: se le pide a Github que asigne una máquina virtual limpia con la versión mas estable
+# y reciente de Ubuntu Linux
+# Esto es muy importante para la reproducibilidar, ya que arranca vacía, es decir, no se tiene absolutamente nada,
+# no hay Codespacees ni nada preinstalado, lo cual es útil para correr el programa en cualquier computadora
+jobs: 
+  test: 
+    name: Pruebas unitarias con Pytest 
+    # Servidor virtual en la nube proporcionado por GitHub (Ubuntu Linux) 
+    runs-on: ubuntu-latest
+
+    steps: 
+      # 1. Descargar el código del repositorio en la máquina virtual 
+      - name: Descargar codigo (Checkout) 
+        # Equivale a hacer un git clone del repositorio dentro de la máquina virtual de Ubuntu, dejándola parada 
+        # en la raíz del proyecto para que los siguientes pasos puedan ver los archivos (pyproject.toml, src/, tests/, etc.).
+        uses: actions/checkout@v4
+
+      # 2. Configurar el entorno de Python fijando la versión del estudio 
+      # Acción que instala el intérprete de Python en la máquina virtual
+      - name: Configurar Python 3.11  
+        uses: actions/setup-python@v5 
+        with:
+          python-version: "3.11" # Fija la versión de ejecución, consistente con Dockerfile (python:3.11-slim) y pyproject.toml (>=3.10).
+          cache: "pip" # Guarda en caché las descargas para acelerar futuras pruebas
+
+      # 3. Instalar dependencias y el paquete en modo editable (Sesión 05) 
+      # python -m pip install --upgrade  actualiza el gestor de paquetes a su versión más reciente para evitar 
+      # advertencias de compatibilidad.
+      # pip pip install lee el archivo pyproject.toml, instala las dependencias del proyecto (`pandas`, `matplotlib`, `seaborn`).
+      # Instala las dependencias opcionales del grupo dev (pytest)
+      # El argumento `-e .` (editable) conecta la carpeta src/estudio_dm2 al entorno para que los tests puedan importarla directamente.
+
+      - name: Instalar paquete y dependencias de test 
+        run: | 
+          python -m pip install --upgrade 
+          pip pip install -e ".[dev]" 
+          
+      # 4. Ejecutar la suite de pruebas automatizadas con salida detallada 
+      # pytest -v: Ejecuta la suite de pruebas automáticas con salida detallada.
+      - name: Ejecutar pruebas con Pytest 
+        run: | 
+          pytest -v
