@@ -1,0 +1,86 @@
+# =============================================================================
+## Proyecto Final
+## Materia: Ciencia de datos en la industria
+## Autor: Andrea González
+# ============================================================================= 
+
+# ============================================================================== 
+# CONFIGURACIÓN DEL PAQUETE PYTHON (Sesión 05: Buenas Prácticas y Empaquetado)
+# ============================================================================== 
+
+# Un proyecto de investigación científico serio no debe ser una carpeta de scripts sueltos, 
+# sino un **paquete de Python instalable y reproducible**
+# El archivo `pyproject.toml` es el estándar moderno unificado (PEP 517 y PEP 621)
+
+[build-system] 
+
+# **PEP 517** exige declarar en [build-system] qué herramientas se necesitan para compilar el paquete 
+# con esto se evita correr el paquete a ciegas.
+
+# [build-system] define qué herramienta construirá el paquete al ejecutar "pip install -e ." 
+# Visto en Sesión 05: permite empaquetar código en src/ sin scripts legados setup.py 
+
+# requires especifica qué herramienta debe usar `pip` detrás de escena para empaquetar el código
+requires = ["setuptools&gt;=61.0"] 
+
+# build-backend es el módulo interno de Python con el que `pip` se comunica para ejecutar la instalación.
+
+build-backend = "setuptools.build\_meta" [project] 
+
+
+
+# Metadatos del estudio epidemiológico 
+# Se sigue la especificación estándar **PEP 621**, que define cómo describir formalmente 
+# cualquier proyecto o librería científica en Python
+
+# name es el identificador oficial de tu distribución
+name = "estudio-dm2-omop" 
+version = "0.1.0" 
+# description consiste en un resumen de una línea que describe la pregunta y alcance clínico del proyecto
+description = "Caracterización epidemiológica de cohorte DM2 y uso de metformina en OMOP CDM" 
+# readme indica qué archivo contiene la documentación general del proyecto
+readme = "README.md"
+# requires-python define la restricción de compatibilidad del lenguaje. 
+requires-python = "&gt;=3.10"
+
+
+
+
+# Dependencias principales del análisis (Sesión 02: Pandas y Sesión 03: EDA) 
+# "Declarar no es congelar": fijamos versiones mínimas para asegurar compatibilidad 
+
+# **pandas** permite estructurar las tablas clínicas
+# **matplotlib>=3.7.0** y **seaborn>=0.12.0** (Sesión 03: Visualización y EDA)
+# Son las herramientas para construir las figuras de distribución de edad, prevalencia de comorbilidades y curvas temporales
+dependencies = [ 
+    "pandas>=2.0.0", 
+    "matplotlib>=3.7.0", 
+    "seaborn>=0.12.0", 
+] 
+    
+
+
+# Un médico o analista que solo quiere clonar el repositorio para replicar los resultados de la cohorte 
+# solo necesita Pandas y las librerías gráficas (`pip install -e .`). No necesita instalar herramientas adicionales que no utilizará.  
+
+[project.optional-dependencies] 
+# Dependencias exclusivas para desarrollo y pruebas de calidad (Sesión 05) 
+# Se instalan con: pip install -e ".[dev]" 
+dev = [ "pytest>=7.0.0", ]
+
+
+# ==============================================================================
+# CONFIGURACIÓN DE TESTING CON PYTEST (Sesión 05)
+# ==============================================================================
+
+# Bajo el estándar moderno de empaquetado, la sección [tool.pytest.ini_options] le permite a pytest 
+# leer sus opciones directamente desde pyproject.toml. Esto reduce la cantidad de archivos dispersos en la raíz.
+[tool.pytest.ini_options]
+
+# Define la lista de directorios donde pytest debe buscar las pruebas automáticas.
+# Dónde buscar automáticamente las pruebas (archivos test_*.py)
+testpaths = ["tests"]
+
+# src layout: fuerza a que pytest resuelva los módulos desde src/
+# evitando que importe archivos sueltos por error desde la raíz
+pythonpath = ["src"]

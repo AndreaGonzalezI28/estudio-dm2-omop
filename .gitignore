@@ -1,0 +1,56 @@
+# ============================================================================== 
+## Proyecto Final
+## Materia: Ciencia de datos en la industria
+## Autor: Andrea González
+# ============================================================================= 
+
+
+# ============================================================================== 
+# Archivo de exclusiones de Git (.gitignore) - Sesión 04 
+# ============================================================================== 
+
+# 1\. Archivos temporales y de caché de Python 
+# Evitan subir archivos binarios compilados que se generan al ejecutar código 
+#Cuando se ejecuta un script de Python o se corre una prueba con `pytest`, el intérprete genera archivos binarios intermedios 
+#(.pyc o el directorio .pytest_cache/) para acelerar la ejecución en la máquina, pero estos son "archivos basura".
+
+__pycache__/
+*.py[cod] 
+*$py.class 
+.pytest_cache/
+
+# 2\. Entornos virtuales locales 
+# Los paquetes deben instalarse mediante pyproject.toml / Docker, no subirse a Git 
+# Los entornos locales contienen ejecutables y enlaces específicos de cada sistema operativo,
+# por lo que no funcionan en la computadora de otra persona
+.venv/ 
+venv/ 
+env/ 
+
+
+# 3\. REGLA ESTRICTA DE SEGURIDAD CLÍNICA (Sesión 01, 04 y 26) 
+# NUNCA subir bases de datos, datos sintéticos ni archivos tabulares al repositorio 
+# Los datos son confidenciales, siempre hay que conservar la seguridad de los pacientes
+# Ningún dato ientificabke entra en el repositorio, por ello es indispensable el uso de herramientas como
+## OMOP, ya que corre en cualquier base OMOP del mundo, además "el código viaja, los datos no" ya que 
+# sólo comparte resultados agregados.
+
+*.sqlite 
+*.db 
+*.csv 
+*.parquet data/ 
+
+# 4\. Credenciales y secretos (Sesión 19: AWS IAM y Seguridad) 
+# Evita fugas accidentales de tokens o claves de acceso .env secrets.json
+# Cada que se sube algo, se queda almacenado en el historial, aunque se borre en otro commit
+# Por ello es muy importante que esos archivos vivan fuera de Github
+
+*.pem 
+*.key 
+
+# 5\. Checkpoints de Jupyter Notebooks 
+# Archivos temporales generados al guardar notebooks en el navegador 
+# Cuando se abre un notebook en Jupyter el servidor crea una carpeta llamada `.ipynb_checkpoints/` 
+# ahí se guardan respaldos automáticos locales, no se requieren en github
+
+.ipynb_checkpoints/
