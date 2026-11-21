@@ -44,3 +44,29 @@ def validar_lavado_nuevo_usuario(
     usuarios_prevalentes = set(df_exposiciones_previas["person_id"].unique()) 
     # Revisa fila por fila si el paciente evaluado está dentro de la lista de personas que ya tomaban el medicamento.
     return df_candidatos[~df_candidatos["person_id"].isin(usuarios_prevalentes)].copy()
+
+
+# bool: A diferencia de las dos funciones anteriores (que filtraban filas y devolvían un DataFrame), 
+# esta función devuelve un valor booleano: True si la tabla cumple al 100% las especificaciones de OHDSI, 
+# o False si viola alguna regla fundamental.
+def validar_estructura_cohorte_ohdsi(df_cohorte: pd.DataFrame) ->; bool: # Recibe la tabla final generada tras ejecutar la consulta de cohorte en SQL.
+    """Verifica que la tabla cumpla el estándar canónico de OHDSI (4 columnas y fechas consistentes).""" 
+    columnas_esperadas = { 
+        "cohort_definition_id", # Identificador numérico de la cohorte (en nuestro caso `1` para la cohorte principal).
+        "subject_id", # Identificador del paciente (person_id).
+        "cohort_start_date", # Fecha de entrada a la cohorte (inicio de metformina).
+        "cohort_end_date" # Fecha de salida de la cohorte (fin del tratamiento o seguimiento).
+    } 
+    if not columnas_esperadas.issubset(df_cohorte.columns): 
+        return False # Comprueba si todas las `columnas_esperadas` son un subconjunto de las columnas que realmente tiene df_cohorte.
+    
+    if df_cohorte["subject_id"].isnull().any(): 
+        return False # Revisa si existe al menos un valor nulo (NaN, None) en la columna de identificadores de paciente.
+    
+    # Convierte las cadenas de texto o fechas al tipo de dato datetime estándar de Pandas para poder compararlas cronológicamente.
+    # Evalúa una regla clínica y temporal elemental: **un paciente no puede salir de una cohorte antes de haber entrado a ella**.
+    fechas_validas = ( 
+        pd.to_datetime(df_cohorte["cohort_end_date"]) >= pd.to_datetime(df_cohorte["cohort_start_date"]) 
+    ).all() 
+
+    return bool(fechas_validas)
