@@ -14,7 +14,7 @@ Implementa las comprobaciones clínicas definidas en docs/protocolo.md. """
 from typing import List, Dict, Any # Prepara el código para el uso de sugerencias de tipos (type hints), facilitando la lectura y mantenimiento del paquete.
 import pandas as pd # Importa la biblioteca estándar para el manejo estructurado de datos tabulares (DataFrames) en Python
 
-def validar_criterio_edad(df_pacientes: pd.DataFrame, edad_minima: int = 18) ->; pd.DataFrame: 
+def validar_criterio_edad(df_pacientes: pd.DataFrame, edad_minima: int = 18) -> pd.DataFrame: 
    # Declara que la función espera recibir una tabla de Pandas con la información de los pacientes. 
     """ Filtra y valida que ningún paciente sea menor a la edad mínima requerida en la fecha índice."""
     # Define un argumento opcional con valor por defecto. Si al llamarla no le pasas nada, asumirá la mayoría de edad (>18), 
@@ -33,7 +33,7 @@ def validar_criterio_edad(df_pacientes: pd.DataFrame, edad_minima: int = 18) ->;
 def validar_lavado_nuevo_usuario( 
     df_candidatos: pd.DataFrame,  # Es la tabla con los pacientes que ya superaron los pasos anteriores, tienen diagnóstico de Diabetes Tipo 2 y son mayores de 18 años.
     df_exposiciones_previas: pd.DataFrame # Es una tabla secundaria obtenida de la base que contiene los registros de metformina ocurridos en la ventana de 365 días previos
-)->; pd.DataFrame: # Indica que regresará una tabla limpia con los pacientes que verdaderamente inician el tratamiento por primera vez.
+)-> pd.DataFrame: # Indica que regresará una tabla limpia con los pacientes que verdaderamente inician el tratamiento por primera vez.
     
     # Al forzar que no hayan tomado el medicamento en el año previo, se garantiza que todos los pacientes inician su historia farmacológica desde el punto cero.
     """ Aplica la regla de lavado (Ray, 2003): excluye usuarios prevalentes con uso previo del fármaco."""
@@ -49,7 +49,7 @@ def validar_lavado_nuevo_usuario(
 # bool: A diferencia de las dos funciones anteriores (que filtraban filas y devolvían un DataFrame), 
 # esta función devuelve un valor booleano: True si la tabla cumple al 100% las especificaciones de OHDSI, 
 # o False si viola alguna regla fundamental.
-def validar_estructura_cohorte_ohdsi(df_cohorte: pd.DataFrame) ->; bool: # Recibe la tabla final generada tras ejecutar la consulta de cohorte en SQL.
+def validar_estructura_cohorte_ohdsi(df_cohorte: pd.DataFrame) -> bool: # Recibe la tabla final generada tras ejecutar la consulta de cohorte en SQL.
     """Verifica que la tabla cumpla el estándar canónico de OHDSI (4 columnas y fechas consistentes).""" 
     columnas_esperadas = { 
         "cohort_definition_id", # Identificador numérico de la cohorte (en nuestro caso `1` para la cohorte principal).

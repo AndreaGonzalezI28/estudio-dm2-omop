@@ -25,7 +25,8 @@ requires = ["setuptools>=61.0"]
 
 # build-backend es el módulo interno de Python con el que `pip` se comunica para ejecutar la instalación.
 
-build-backend = "setuptools.build_meta" [project] 
+build-backend = "setuptools.build_meta" 
+[project] 
 
 
 
