@@ -9,20 +9,34 @@
 -- ----------------------------------------------------------------------------- 
 -- 1. Identificación del primer diagnóstico de DM2 por paciente (Fecha índice) 
 -- ----------------------------------------------------------------------------- 
+
+-- Crea una tabla temporal en memoria para almacenar la fecha de entrada de cada paciente al estudio.
 CREATE OR REPLACE TEMP TABLE primer_dx_dm2 AS
 SELECT 
-    co.person_id, 
+    co.person_id, -- El identificador único del paciente en OMOP CDM.
+
+    -- Esta función de agregación es clave. Un paciente diabético puede tener decenas de consultas a lo largo de 
+    -- los años; MIN(...) toma la fecha más antigua registrada en la base de datos para ese diagnóstico, 
+    -- estableciendo su fecha índice (t_0) de debut o incidencia clínica.
     MIN(co.condition_start_date) AS index_date
+
+-- Consulta la tabla de diagnósticos clínicos de OMOP.
 FROM condition_occurrence co
+
+-- Cruza con el Concept Set que creamos en sql/01_concept_sets.sql. Si el diagnóstico del paciente coincide con 
+-- alguno de los códigos válidos de DM2 (semilla o descendientes no excluidos), entra en el conteo.
 JOIN dm2_concepts dc 
     ON co.condition_concept_id = dc.concept_id 
-GROUP BY co.person_id;
+GROUP BY co.person_id; -- Agrupa todas las consultas de cada individuo para devolver una sola fila por persona con su primer diagnóstico.
 
 -- ----------------------------------------------------------------------------- 
 -- 2. Tabla de Atrición y Filtrado Secuencial 
 -- -----------------------------------------------------------------------------
+-- La atrición es el embudo que documenta cuántos pacientes sobreviven a cada criterio de inclusión/exclusión del estudio.
 
 -- Paso 1: Diagnóstico de DM2 (Población base con al menos un evento) 
+-- Guarda a todos los pacientes que tienen al menos un diagnóstico de DM2 registrado, sin importar edad ni medicamentos. 
+-- Es el punto de partida (100% de la población inicial).
 CREATE OR REPLACE TEMP TABLE atricion_paso1 AS 
 SELECT person_id, index_date FROM primer_dx_dm2; 
 
@@ -34,8 +48,11 @@ SELECT
 
 FROM atricion_paso1 p1 
 JOIN person p 
-    ON p1.person_id = p.person_id 
-WHERE (EXTRACT(YEAR FROM p1.index_date) - p.year_of_birth) >= 18; 
+    ON p1.person_id = p.person_id --Cruza con la tabla demográfica `person` para obtener la fecha de nacimiento.
+WHERE (EXTRACT(YEAR FROM p1.index_date) - p.year_of_birth) >= 18;-- Calcula la edad exacta del paciente 
+-- al momento en que se le diagnosticó DM2. Si el paciente era menor de edad en su fecha índice, 
+-- se descarta para cumplir con la delimitación de población adulta fijada en el protocolo.
+
 
 -- Paso 3: Observación previa continua >= 365 días (Garantizar observabilidad) 
 CREATE OR REPLACE TEMP TABLE atricion_paso3 AS 
@@ -43,10 +60,15 @@ SELECT
     p2.person_id, 
     p2.index_date 
 FROM atricion_paso2 p2 
-JOIN observation_period op 
+JOIN observation_period op -- Cruza con la tabla que define en qué rango de fechas el sistema de salud estuvo registrando activamente los eventos del paciente.
     ON p2.person_id = op.person_id 
+
+-- Esta es la regla epidemiológica de "te estábamos observando". 
+-- Exige que el hospital tenga registros del paciente desde al menos 1 año (365 días) antes del diagnóstico. 
+-- Si un paciente llega por primera vez hoy al hospital y hoy mismo le diagnostican DM2, no podemos saber si 
+-- realmente es un caso nuevo o si llevaba 10 años enfermo en otra clínica.
 WHERE p2.index_date >= op.observation_period_start_date + INTERVAL '365' DAY 
- AND p2.index_date <= op.observation_period_end_date;
+ AND p2.index_date <= op.observation_period_end_date; -- Garantiza que el evento ocurrió dentro del periodo activo de cobertura.
 
 
 -- Paso 4: Diseño de Nuevo Usuario / Lavado de 365 días (Ray, 2003) 
