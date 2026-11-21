@@ -42,7 +42,7 @@ description = "Caracterización epidemiológica de cohorte DM2 y uso de metformi
 # readme indica qué archivo contiene la documentación general del proyecto
 readme = "README.md"
 # requires-python define la restricción de compatibilidad del lenguaje. 
-requires-python = "&gt;=3.10"
+requires-python = ">=3.10"
 
 
 
