@@ -175,22 +175,22 @@ Para este estudio, se identifican las siguientes limitaciones metodológicas:
 ## 9. Declaración de Uso de Asistentes de Inteligencia Artificial
 
 En cumplimiento con los lineamientos éticos y la rúbrica de evaluación del curso (Sesión 28: Desarrollo Asistido por IA), se declara el uso de herramientas de inteligencia artificial generativa como apoyo técnico durante el desarrollo del proyecto.
-10.1. Herramientas Utilizadas
+9.1. Herramientas Utilizadas
 Asistentes de inteligencia artificial generativa: Claude Code y Gemini.
-10.2. Alcance de la Asistencia Técnica
+9.2. Alcance de la Asistencia Técnica
 La asistencia se utilizó en los siguientes componentes del proyecto:
 1. Estructura y empaquetado: Apoyo en la sintaxis declarativa de pyproject.toml, siguiendo las especificaciones PEP 517/621, y en la configuración de la estructura de directorios bajo el enfoque src layout.
 2. Infraestructura y CI: Asistencia en la revisión y depuración sintáctica del flujo de Integración Continua (Continuous Integration) mediante GitHub Actions, particularmente en el archivo .github/workflows/ci.yml.
 3. Visualización: Apoyo en la elaboración de plantillas base para generar figuras estandarizadas a 300 DPI mediante las bibliotecas matplotlib y seaborn.
 4. Documentación: Revisión de estilo, organización y formato de tablas Markdown para el reporte de atrición y la Tabla 1 de características basales.
-10.3. Control Humano y Responsabilidad Analítica
-Las decisiones científicas, metodológicas y clínicas del proyecto fueron responsabilidad de la autora. En particular, los siguientes componentes fueron conducidos, revisados y validados por ella:
-- Formulación clínica: Desarrollo de la pregunta de investigación bajo el formato PICO, definición de los criterios de atrición, ventanas de observación y periodos de lavado fundamentados en el diseño de nuevo usuario propuesto por Ray (2003).
-- Vocabularios controlados: Selección y revisión de los conceptos estándar en OMOP CDM, incluyendo el concepto semilla de SNOMED CT 201826 y el ingrediente farmacológico de RxNorm 6809, así como las exclusiones correspondientes a diabetes gestacional y neonatal.
+
+9.3. Control Humano y Responsabilidad Analítica
+Las decisiones científicas, metodológicas y clínicas fueron responsabilidad del autor. En particular, los siguientes componentes:
 - Verificación del código: Diseño, revisión y validación de las pruebas unitarias mediante pytest.
 - Interpretación científica: Análisis e interpretación epidemiológica y biomédica de los resultados, así como la elaboración de las conclusiones del estudio.
-La asistencia de inteligencia artificial no sustituyó el criterio científico de la autora ni la responsabilidad sobre las decisiones metodológicas y los resultados reportados.
-10.4. Privacidad y Protección de Datos
+La asistencia de inteligencia artificial no sustituyó el criterio científico ni la responsabilidad sobre las decisiones metodológicas y los resultados reportados.
+
+9.4. Privacidad y Protección de Datos
 Siguiendo el principio de privacidad en el análisis de datos de salud, «el código viaja, los datos no», se establece que ningún dato identificable ni registro clínico sensible fue procesado por los modelos de lenguaje utilizados como asistentes.
 
 La asistencia se limitó al desarrollo técnico, revisión de código, estructuración documental y apoyo en visualizaciones, preservando la confidencialidad de la información clínica.
