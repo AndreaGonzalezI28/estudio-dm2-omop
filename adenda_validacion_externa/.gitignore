@@ -1,0 +1,9 @@
+data/
+outputs/*
+!outputs/.gitkeep
+__pycache__/
+*.py[cod]
+*.sqlite
+*.db
+*.zip
+.ipynb_checkpoints/
